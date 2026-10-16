@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Finanzas Control Mental</title>
+
+  <!-- Meta Tags PWA para iPhone (Pantalla Completa Nativa) -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Mi Control" />
+  <meta name="theme-color" content="#090d16" />
+
+  <!-- Manifest PWA embebido -->
+  <link rel="manifest" href='data:application/manifest+json,{"name":"Finanzas Control Mental","short_name":"Mi Control","display":"standalone","background_color":"#090d16","theme_color":"#090d16","orientation":"portrait"}' />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ios: {
+              bg: '#090d16',
+              card: '#131b2e',
+              cardHover: '#1a2540',
+              border: '#23304d',
+              accent: '#3b82f6',
+              nu: '#820ad1',
+              rappi: '#ff441f',
+              banco: '#facc15',
+              tc: '#f43f5e',
+              casa: '#10b981'
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['SF Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --safe-top: env(safe-area-inset-top, 20px);
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+    }
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #090d16;
+      color: #f8fafc;
+      padding-top: calc(var(--safe-top) + 8px);
+      padding-bottom: calc(var(--safe-bottom) + 88px);
+      overscroll-behavior-y: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    input, textarea, select {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .ios-blur {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes pulseRed {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.45); }
+      50% { box-shadow: 0 0 0 10px rgba(244, 63, 94, 0); }
+    }
+    .alert-deficit {
+      animation: pulseRed 2s infinite;
+    }
+    .sheet-enter {
+      transform: translateY(0%);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .sheet-leave {
+      transform: translateY(105%);
+      transition: transform 0.22s ease-in;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <div class="max-w-md mx-auto px-4 space-y-5">
+
+    <!-- HEADER SUPERIOR -->
+    <header class="flex items-center justify-between pt-2">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Arquitectura Financiera</p>
+        </div>
+        <h1 class="text-xl font-bold tracking-tight text-white">Control Mental COP</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="App.openReconcileModal()" title="Conciliar Saldos" class="p-2.5 rounded-2xl bg-ios-card border border-ios-border text-slate-300 active:scale-95 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+          </svg>
+        </button>
+        <button onclick="App.switchTab('settings')" title="Ajustes y API Key" class="p-2.5 rounded-2xl bg-ios-card border border-ios-border text-slate-300 active:scale-95 transition relative">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span id="apiKeyDot" class="hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==========================================
+         VISTA 1: DASHBOARD PRINCIPAL
+         ========================================== -->
+    <main id="view-dashboard" class="space-y-4">
+
+      <!-- HERO: PATRIMONIO NETO REAL -->
+      <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#121e36] to-[#0d1526] border border-slate-700/60 p-5 shadow-2xl">
+        <div class="absolute -right-8 -top-8 w-36 h-36 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Patrimonio Neto Real (100% Mío)</span>
+          <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 font-medium">Sin dinero de Mamá</span>
+        </div>
+
+        <div id="netWorthDisplay" class="text-3xl font-extrabold font-mono tracking-tight text-white mt-2">$ 0</div>
+        <p class="text-[11px] text-slate-400 mt-1">
+          Fórmula: <span class="text-slate-300">(Bancolombia + Nu Mío + Rappi) − Deuda TC</span>
+        </p>
+
+        <div class="grid grid-cols-2 gap-2.5 mt-4 pt-3.5 border-t border-slate-800/80">
+          <div class="bg-slate-950/40 rounded-2xl p-2.5 border border-slate-800/60">
+            <span class="text-[11px] text-slate-400 block">Disponible Operativo Hoy</span>
+            <span id="freeCashDisplay" class="text-sm font-bold font-mono text-emerald-400">$ 0</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">Bancolombia libre tras TC</span>
+          </div>
+          <div class="bg-slate-950/40 rounded-2xl p-2.5 border border-slate-800/60">
+            <span class="text-[11px] text-slate-400 block">Ahorro Propio Intacto</span>
+            <span id="ownSavingsDisplay" class="text-sm font-bold font-mono text-purple-300">$ 0</span>
+            <span class="text-[10px] text-slate-500 block mt-0.5">Tu parte en Cajita Nu</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TERMÓMETRO DE DEUDA TC VS RESPALDO RAPPI -->
+      <section id="tcThermometerCard" class="rounded-3xl bg-ios-card border border-ios-border p-4 transition-all">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <div id="tcStatusIcon" class="w-8 h-8 rounded-xl flex items-center justify-center bg-emerald-500/15 text-emerald-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-white leading-tight">Termómetro TC vs. Rappi</h2>
+              <p id="tcStatusText" class="text-[11px] text-emerald-400 font-medium">Deuda 100% respaldada</p>
+            </div>
+          </div>
+          <span id="tcCoverageBadge" class="text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+            100%
+          </span>
+        </div>
+
+        <!-- Barra comparativa -->
+        <div class="space-y-2 my-3">
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-400">Deuda TC: <strong id="thermDebtVal" class="font-mono text-rose-400">$ 0</strong></span>
+            <span class="text-slate-400">En Rappi: <strong id="thermRappiVal" class="font-mono text-orange-400">$ 0</strong></span>
+          </div>
+          <div class="w-full h-3 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800">
+            <div id="thermBar" class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <!-- Alerta de déficit o Acciones Rápidas TC -->
+        <div id="tcAlertBanner" class="hidden mt-3 p-3 rounded-2xl bg-rose-950/60 border border-rose-500/50 text-xs text-rose-200 flex items-center justify-between gap-2">
+          <div>
+            <span class="font-bold text-rose-400 block">¡Faltan <span id="tcDeficitAmount" class="font-mono">$ 0</span> en Rappi!</span>
+            <span class="text-[11px] text-rose-300/90">Tu deuda de TC supera lo apartado en Rappi.</span>
+          </div>
+          <button onclick="App.fundMissingRappi()" class="shrink-0 px-3 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-[11px] active:scale-95 transition shadow-lg">
+            Cubrir desde Bancolombia
+          </button>
+        </div>
+
+        <div class="flex gap-2 mt-3 pt-2.5 border-t border-slate-800/80">
+          <button onclick="App.openQuickModal('tc_pay')" class="flex-1 py-2 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-1.5 active:scale-95 transition">
+            <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+            </svg>
+            Saldar / Pagar TC
+          </button>
+          <button onclick="App.openQuickModal('transfer', {from:'bancolombia', to:'rappi'})" class="flex-1 py-2 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-1.5 active:scale-95 transition">
+            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+            </svg>
+            Pasar a Rappi
+          </button>
+        </div>
+      </section>
+
+      <!-- DESGLOSE DE CUENTAS ACTIVAS -->
+      <section class="space-y-3">
+        <div class="flex items-center justify-between px-1">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Desglose de Cuentas</h3>
+          <span class="text-[11px] text-slate-500">Toca una tarjeta para operar</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <!-- 1. BANCOLOMBIA -->
+          <div onclick="App.openQuickModal('expense', {account:'bancolombia'})" class="rounded-3xl bg-ios-card border border-ios-border p-4 active:scale-[0.98] transition cursor-pointer relative overflow-hidden">
+            <div class="w-1.5 h-full bg-yellow-400 absolute left-0 top-0"></div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-yellow-400">Bancolombia</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-yellow-400/10 text-yellow-300">Operativa</span>
+            </div>
+            <div id="balBancolombia" class="text-lg font-extrabold font-mono text-white truncate">$ 0</div>
+            <p class="text-[10px] text-slate-400 mt-1">Nómina, puente y pagos</p>
+          </div>
+
+          <!-- 2. RAPPIPAY -->
+          <div onclick="App.openQuickModal('transfer', {from:'bancolombia', to:'rappi'})" class="rounded-3xl bg-ios-card border border-ios-border p-4 active:scale-[0.98] transition cursor-pointer relative overflow-hidden">
+            <div class="w-1.5 h-full bg-orange-500 absolute left-0 top-0"></div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-orange-400">RappiPay</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-300">Fondo TC</span>
+            </div>
+            <div id="balRappi" class="text-lg font-extrabold font-mono text-white truncate">$ 0</div>
+            <p class="text-[10px] text-slate-400 mt-1">Exclusivo respaldo TC</p>
+          </div>
+        </div>
+
+        <!-- 3. TARJETA DE CRÉDITO (PASIVO) -->
+        <div class="rounded-3xl bg-ios-card border border-ios-border p-4 relative overflow-hidden">
+          <div class="w-1.5 h-full bg-rose-500 absolute left-0 top-0"></div>
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-rose-400">Tarjeta de Crédito (TC)</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 font-medium">Pasivo / Deuda</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5">No descuenta del banco al comprar; suma deuda.</p>
+            </div>
+            <div class="text-right">
+              <div id="balTcDebt" class="text-xl font-extrabold font-mono text-rose-400">- $ 0</div>
+              <button onclick="App.openQuickModal('expense', {account:'tc'})" class="text-[11px] text-blue-400 font-semibold mt-0.5 hover:underline">
+                + Registrar compra TC
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. CAJITA NU (FONDOS MIXTOS: MÍO VS MAMÁ) -->
+        <div class="rounded-3xl bg-gradient-to-br from-[#1f1135] via-[#161229] to-ios-card border border-purple-500/40 p-4 shadow-lg relative overflow-hidden">
+          <div class="w-1.5 h-full bg-purple-500 absolute left-0 top-0"></div>
+          
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-extrabold text-purple-300">Nu · Cajita de Ahorro</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-400/30">Fondos Mixtos</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5">Saldo Total visible en tu app de Nu:</p>
+            </div>
+            <div id="balNuTotal" class="text-xl font-extrabold font-mono text-white">$ 280.000</div>
+          </div>
+
+          <!-- Barra de proporción Mío vs Mamá -->
+          <div class="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden flex mb-3 border border-purple-900/50">
+            <div id="nuOwnBar" class="h-full bg-purple-500 transition-all duration-300" style="width: 100%"></div>
+            <div id="nuMomBar" class="h-full bg-pink-400 transition-all duration-300" style="width: 0%"></div>
+          </div>
+
+          <!-- Subcuentas separadas -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="rounded-2xl bg-slate-950/60 border border-purple-500/30 p-3">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-purple-300 flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-purple-500"></span> Mi Dinero Propio
+                </span>
+              </div>
+              <div id="balNuOwn" class="text-base font-extrabold font-mono text-white mt-1">$ 280.000</div>
+              <span class="text-[10px] text-slate-400 block mt-0.5">100% tuyo · Suma al patrimonio</span>
+            </div>
+
+            <div class="rounded-2xl bg-slate-950/60 border border-pink-500/30 p-3">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold text-pink-300 flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-pink-400"></span> Dinero de Mamá
+                </span>
+              </div>
+              <div id="balNuMom" class="text-base font-extrabold font-mono text-pink-200 mt-1">$ 0</div>
+              <span id="nuMomStatusLabel" class="text-[10px] text-slate-400 block mt-0.5">Custodia de terceros</span>
+            </div>
+          </div>
+
+          <div class="flex gap-2 mt-3">
+            <button onclick="App.openQuickModal('mom_nu')" class="flex-1 py-2 px-3 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-200 text-xs font-semibold active:scale-95 transition">
+              + Movimiento de Mamá
+            </button>
+            <button onclick="App.openQuickModal('transfer', {from:'bancolombia', to:'nuOwn'})" class="flex-1 py-2 px-3 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 text-xs font-semibold active:scale-95 transition">
+              + Ahorrar en lo Mío
+            </button>
+          </div>
+        </div>
+
+        <!-- 5. ENLACE CON FONDO CASA (EXCEL HOGAR) -->
+        <div class="rounded-3xl bg-ios-card border border-emerald-500/30 p-4 relative overflow-hidden">
+          <div class="w-1.5 h-full bg-emerald-500 absolute left-0 top-0"></div>
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-emerald-400">Fondo Casa (Enlace Excel)</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300">Externo</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5">Aportes quincenales enviados vs. sobrantes recibidos</p>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-slate-400 block">Flujo Neto Enviado</span>
+              <div id="balHouseFlow" class="text-base font-extrabold font-mono text-emerald-300">$ 0</div>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-3 pt-2.5 border-t border-slate-800/80">
+            <button onclick="App.openQuickModal('transfer', {from:'bancolombia', to:'fondoCasa', note:'Aporte quincenal Fondo Casa'})" class="flex-1 py-1.5 px-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold active:scale-95 transition">
+              Enviar Aporte Casa
+            </button>
+            <button onclick="App.openQuickModal('transfer', {from:'fondoCasa', to:'bancolombia', note:'Sobrante / Reembolso recibido de Casa'})" class="flex-1 py-1.5 px-2.5 rounded-xl bg-slate-800 text-slate-300 text-[11px] font-semibold active:scale-95 transition">
+              Recibir Sobrante Casa
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ÚLTIMOS MOVIMIENTOS RESUMIDOS -->
+      <section class="space-y-2.5 pt-1">
+        <div class="flex items-center justify-between px-1">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Movimientos Recientes</h3>
+          <button onclick="App.switchTab('history')" class="text-xs text-blue-400 font-semibold">Ver todos</button>
+        </div>
+        <div id="recentTransactionsList" class="space-y-2"></div>
+      </section>
+
+    </main>
+
+    <!-- ==========================================
+         VISTA 2: HISTORIAL Y BITÁCORA
+         ========================================== -->
+    <section id="view-history" class="hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold text-white">Historial y Bitácora</h2>
+        <div class="flex bg-ios-card p-1 rounded-xl border border-ios-border text-xs">
+          <button id="subTabTxBtn" onclick="App.switchHistorySubTab('tx')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold transition">Movimientos</button>
+          <button id="subTabNotesBtn" onclick="App.switchHistorySubTab('notes')" class="px-3 py-1.5 rounded-lg text-slate-400 font-semibold transition">Bitácora IA</button>
+        </div>
+      </div>
+
+      <!-- Sub-vista: Todos los movimientos -->
+      <div id="historyTxContainer" class="space-y-2.5">
+        <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+          <button onclick="App.filterHistory('all')" class="filter-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 text-white shrink-0">Todos</button>
+          <button onclick="App.filterHistory('tc')" class="filter-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-ios-card border border-ios-border text-slate-300 shrink-0">Tarjeta Crédito</button>
+          <button onclick="App.filterHistory('mom_nu')" class="filter-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-ios-card border border-ios-border text-slate-300 shrink-0">Mamá (Nu)</button>
+          <button onclick="App.filterHistory('house')" class="filter-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-ios-card border border-ios-border text-slate-300 shrink-0">Fondo Casa</button>
+        </div>
+        <div id="fullTransactionsList" class="space-y-2"></div>
+      </div>
+
+      <!-- Sub-vista: Bitácora Guardada de Gemini -->
+      <div id="historyNotesContainer" class="hidden space-y-3">
+        <div class="p-3.5 rounded-2xl bg-ios-card border border-ios-border flex items-center justify-between">
+          <div>
+            <h4 class="text-xs font-bold text-white">Documentación Quincenal</h4>
+            <p class="text-[11px] text-slate-400">Guarda resúmenes desde el Asistente Gemini o crea notas manuales.</p>
+          </div>
+          <button onclick="App.createManualLog()" class="px-3 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold shrink-0 active:scale-95 transition">
+            + Nota
+          </button>
+        </div>
+        <div id="savedLogsList" class="space-y-3"></div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VISTA 3: ASISTENTE FINANCIERO GEMINI AI
+         ========================================== -->
+    <section id="view-gemini" class="hidden space-y-4">
+      <div class="rounded-3xl bg-gradient-to-r from-blue-950/80 via-indigo-950/70 to-purple-950/80 border border-indigo-500/40 p-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-indigo-300">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-white">Consultor Gemini en Vivo</h2>
+              <p class="text-[11px] text-indigo-200/80">Inyecta tus saldos, Nu Mixto, TC y últimos 10 movs.</p>
+            </div>
+          </div>
+          <button onclick="App.clearChat()" class="text-[11px] text-slate-400 hover:text-white px-2 py-1 rounded-lg bg-slate-900/50">
+            Limpiar
+          </button>
+        </div>
+
+        <!-- Prompts Rápidos de Auditoría -->
+        <div class="flex gap-2 overflow-x-auto hide-scrollbar mt-3 pt-2 border-t border-indigo-500/20">
+          <button onclick="App.askPreset('weekend')" class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-indigo-400/30 text-[11px] text-indigo-200 font-medium active:scale-95 transition">
+            💸 ¿Cuánto tengo libre este finde?
+          </button>
+          <button onclick="App.askPreset('nu_audit')" class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-indigo-400/30 text-[11px] text-indigo-200 font-medium active:scale-95 transition">
+            🔍 Explicar descuadre Nu / Mamá
+          </button>
+          <button onclick="App.askPreset('tc_audit')" class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-indigo-400/30 text-[11px] text-indigo-200 font-medium active:scale-95 transition">
+            🛡️ Auditar Deuda TC vs Rappi
+          </button>
+          <button onclick="App.askPreset('biweekly_log')" class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-indigo-400/30 text-[11px] text-indigo-200 font-medium active:scale-95 transition">
+            📝 Generar Bitácora Quincenal
+          </button>
+        </div>
+      </div>
+
+      <!-- Ventana de Chat -->
+      <div id="geminiChatBox" class="space-y-3 min-h-[300px] max-h-[52vh] overflow-y-auto pr-1"></div>
+
+      <!-- Input de Consulta -->
+      <form onsubmit="App.sendGeminiMessage(event)" class="flex gap-2 items-end bg-ios-card p-2 rounded-2xl border border-ios-border">
+        <textarea id="geminiInput" rows="1" placeholder="Pregúntale a tu asesor sobre tus cuentas..." class="flex-1 bg-transparent text-sm text-white placeholder-slate-500 px-2 py-1.5 focus:outline-none resize-none"></textarea>
+        <button id="geminiSendBtn" type="submit" class="p-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold active:scale-95 transition shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+          </svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- ==========================================
+         VISTA 4: AJUSTES, API KEY Y BACKUP
+         ========================================== -->
+    <section id="view-settings" class="hidden space-y-4">
+      <h2 class="text-lg font-bold text-white">Ajustes y Configuración</h2>
+
+      <!-- Configuración de Gemini API Key -->
+      <div class="rounded-3xl bg-ios-card border border-ios-border p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white">Google Gemini API Key</h3>
+            <p class="text-[11px] text-slate-400">Se guarda exclusivamente en el LocalStorage de tu iPhone.</p>
+          </div>
+          <span id="apiKeyStatusBadge" class="text-[10px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-semibold">Pendiente</span>
+        </div>
+
+        <div class="space-y-2">
+          <input id="settingsApiKeyInput" type="password" placeholder="AIzaSy..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white font-mono focus:outline-none focus:border-blue-500" />
+          <div class="flex items-center justify-between gap-2">
+            <select id="settingsModelSelect" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none">
+              <option value="auto">Automático (recomendado)</option>
+              <option value="gemini-3.8-flash">gemini-3.8-flash</option>
+              <option value="gemini-3.7-flash">gemini-3.7-flash</option>
+              <option value="gemini-3.6-flash">gemini-3.6-flash</option>
+              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite</option>
+              <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite</option>
+            </select>
+            <button onclick="App.saveApiKey()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-xs font-bold text-white active:scale-95 transition">
+              Guardar Key
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conciliación Rápida de Saldos -->
+      <div class="rounded-3xl bg-ios-card border border-ios-border p-4 space-y-3">
+        <div>
+          <h3 class="text-sm font-bold text-white">Conciliación / Ajuste de Saldos</h3>
+          <p class="text-[11px] text-slate-400">Si necesitas cuadrar tus saldos actuales con tus bancos reales sin alterar el historial.</p>
+        </div>
+        <button onclick="App.openReconcileModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white active:scale-95 transition">
+          Abrir Conciliador de Saldos
+        </button>
+      </div>
+
+      <!-- Respaldo y Restauración JSON -->
+      <div class="rounded-3xl bg-ios-card border border-ios-border p-4 space-y-3">
+        <div>
+          <h3 class="text-sm font-bold text-white">Copia de Seguridad (LocalStorage)</h3>
+          <p class="text-[11px] text-slate-400">Exporta tus datos en JSON o restaura un respaldo previo.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="App.exportBackup()" class="py-2.5 px-3 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold active:scale-95 transition">
+            Exportar JSON
+          </button>
+          <label class="py-2.5 px-3 rounded-xl bg-slate-800 text-slate-200 text-xs font-semibold text-center cursor-pointer active:scale-95 transition">
+            Importar JSON
+            <input type="file" accept=".json" onchange="App.importBackup(event)" class="hidden" />
+          </label>
+        </div>
+        <button onclick="App.resetFactory()" class="w-full py-2 rounded-xl bg-rose-950/50 border border-rose-500/30 text-rose-400 text-xs font-semibold mt-2 active:scale-95 transition">
+          Reiniciar a Valores de Fábrica (Nu Mío = $280.000)
+        </button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ==========================================
+       MODAL REGISTRO RÁPIDO (< 5 SEGUNDOS)
+       ========================================== -->
+  <div id="quickModalBackdrop" class="fixed inset-0 bg-black/75 ios-blur z-40 hidden flex items-end justify-center">
+    <div id="quickModalSheet" class="w-full max-w-md bg-[#111827] border-t border-slate-700/80 rounded-t-3xl p-5 space-y-4 sheet-leave max-h-[90vh] overflow-y-auto">
+      
+      <!-- Cabecera del Modal -->
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white">Registro Rápido</h3>
+        <button onclick="App.closeQuickModal()" class="p-1.5 rounded-full bg-slate-800 text-slate-400 hover:text-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Selector de Modo (4 Modos Clave) -->
+      <div class="grid grid-cols-4 gap-1.5 bg-slate-950 p-1 rounded-2xl border border-slate-800 text-[11px] font-semibold">
+        <button type="button" onclick="App.setModalMode('expense')" id="modeBtn-expense" class="py-2 rounded-xl bg-blue-600 text-white transition">Gasto/Ingr.</button>
+        <button type="button" onclick="App.setModalMode('transfer')" id="modeBtn-transfer" class="py-2 rounded-xl text-slate-400 transition">Transferir</button>
+        <button type="button" onclick="App.setModalMode('mom_nu')" id="modeBtn-mom_nu" class="py-2 rounded-xl text-slate-400 transition">Mamá (Nu)</button>
+        <button type="button" onclick="App.setModalMode('tc_pay')" id="modeBtn-tc_pay" class="py-2 rounded-xl text-slate-400 transition">Pagar TC</button>
+      </div>
+
+      <form id="quickTxForm" onsubmit="App.submitQuickForm(event)" class="space-y-3.5">
+
+        <!-- MONTO PRINCIPAL Y CHIPS RÁPIDOS -->
+        <div class="bg-slate-950 rounded-2xl p-3 border border-slate-800">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Monto (COP)</label>
+            <span id="formattedPreviewAmount" class="text-xs font-mono text-blue-400 font-semibold">$ 0</span>
+          </div>
+          <div class="flex items-center mt-1">
+            <span class="text-2xl font-extrabold text-slate-500 mr-2">$</span>
+            <input id="txAmount" type="number" inputmode="numeric" required min="1" step="any" placeholder="0" oninput="App.updateAmountPreview(this.value)" class="w-full bg-transparent text-2xl font-extrabold font-mono text-white focus:outline-none" />
+          </div>
+          <div class="flex gap-1.5 mt-2.5 overflow-x-auto hide-scrollbar">
+            <button type="button" onclick="App.addQuickAmount(10000)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-300">+10k</button>
+            <button type="button" onclick="App.addQuickAmount(20000)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-300">+20k</button>
+            <button type="button" onclick="App.addQuickAmount(50000)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-300">+50k</button>
+            <button type="button" onclick="App.addQuickAmount(100000)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-300">+100k</button>
+            <button type="button" onclick="App.setQuickAmount(0)" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-rose-400 ml-auto">Borrar</button>
+          </div>
+        </div>
+
+        <!-- CAMPOS MODO 1: GASTO / INGRESO -->
+        <div id="fields-expense" class="space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">Naturaleza</label>
+              <select id="expenseKind" onchange="App.onExpenseAccountChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+                <option value="expense">🔻 Gasto / Compra</option>
+                <option value="income">🔺 Ingreso / Abono</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">Cuenta</label>
+              <select id="expenseAccount" onchange="App.onExpenseAccountChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+                <option value="bancolombia">Bancolombia (Operativa)</option>
+                <option value="tc">Tarjeta de Crédito (Deuda)</option>
+                <option value="nuOwn">Nu (Mi Dinero Propio)</option>
+                <option value="rappi">RappiPay</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Automatización Inteligente al comprar con TC -->
+          <label id="tcAutoBackBox" class="hidden flex items-start gap-2.5 p-3 rounded-2xl bg-orange-500/10 border border-orange-500/30 cursor-pointer">
+            <input id="tcAutoBackCheck" type="checkbox" checked class="mt-0.5 w-4 h-4 accent-orange-500 rounded" />
+            <div class="text-[11px] leading-snug">
+              <span class="font-bold text-orange-300 block">Apartar respaldo en Rappi automáticamente</span>
+              <span class="text-slate-300">Suma la deuda a tu TC y al mismo tiempo traslada ese valor de Bancolombia a Rappi.</span>
+            </div>
+          </label>
+
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">Categoría</label>
+            <select id="expenseCategory" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+              <option value="Alimentación y Café">🍔 Alimentación y Café</option>
+              <option value="Transporte / Uber / DiDi">🚗 Transporte / Movilidad</option>
+              <option value="Universidad y Estudio">📚 Universidad y Estudio</option>
+              <option value="Compras y Hardware">🛍️ Compras y Hardware</option>
+              <option value="Suscripciones y Juegos">🎮 Suscripciones y Juegos</option>
+              <option value="Ocio y Cine">🎬 Ocio y Salidas</option>
+              <option value="Salud y Deporte">🏋️ Salud y Entrenamiento</option>
+              <option value="Nómina / Ingreso">💰 Nómina / Ingreso</option>
+              <option value="Otros">📌 Otros</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- CAMPOS MODO 2: TRANSFERENCIA ENTRE CUENTAS Y FONDO CASA -->
+        <div id="fields-transfer" class="hidden space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">Desde (Origen)</label>
+              <select id="transferFrom" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+                <option value="bancolombia">Bancolombia</option>
+                <option value="rappi">RappiPay (Fondo TC)</option>
+                <option value="nuOwn">Nu (Mi Dinero)</option>
+                <option value="fondoCasa">🏠 Fondo Casa (Excel)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">Hacia (Destino)</label>
+              <select id="transferTo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+                <option value="rappi">RappiPay (Fondo TC)</option>
+                <option value="bancolombia">Bancolombia</option>
+                <option value="nuOwn">Nu (Mi Dinero)</option>
+                <option value="fondoCasa">🏠 Fondo Casa (Excel)</option>
+              </select>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+            💡 Usa <strong>Fondo Casa (Excel)</strong> para registrar tus aportes quincenales enviados o sobrantes recibidos de la casa.
+          </p>
+        </div>
+
+        <!-- CAMPOS MODO 3: MOVIMIENTO ESPECIAL DE MAMÁ EN NU -->
+        <div id="fields-mom_nu" class="hidden space-y-3">
+          <div class="p-3 rounded-2xl bg-pink-500/10 border border-pink-500/30 text-xs text-pink-200">
+            Saldo actual de Mamá en tu Cajita Nu: <strong id="modalMomBalance" class="font-mono">$ 0</strong>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="cursor-pointer">
+              <input type="radio" name="momAction" value="deposit" checked class="peer hidden" />
+              <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 peer-checked:border-pink-500 peer-checked:bg-pink-500/15 text-center transition">
+                <span class="text-xs font-bold text-white block">➕ Ingreso de Mamá</span>
+                <span class="text-[10px] text-slate-400">Ella deposita o repone en Nu</span>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="momAction" value="withdraw" class="peer hidden" />
+              <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 peer-checked:border-pink-500 peer-checked:bg-pink-500/15 text-center transition">
+                <span class="text-xs font-bold text-white block">➖ Retiro de Mamá</span>
+                <span class="text-[10px] text-slate-400">Ella gasta o retira de Nu</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- CAMPOS MODO 4: PAGAR / SALDAR TARJETA DE CRÉDITO -->
+        <div id="fields-tc_pay" class="hidden space-y-3">
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Deuda actual en TC:</span>
+              <strong id="modalTcDebt" class="font-mono text-rose-400">$ 0</strong>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Disponible en RappiPay:</span>
+              <strong id="modalRappiAvail" class="font-mono text-orange-400">$ 0</strong>
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <button type="button" onclick="App.fillTcPayAmount('fullDebt')" class="flex-1 py-2 px-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[11px] font-semibold">
+              Pagar Deuda Total
+            </button>
+            <button type="button" onclick="App.fillTcPayAmount('allRappi')" class="flex-1 py-2 px-2 rounded-xl bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] font-semibold">
+              Usar Todo Rappi
+            </button>
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">Pagar desde cuenta:</label>
+            <select id="tcPaySource" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+              <option value="rappi">RappiPay (Fondo de Respaldo TC)</option>
+              <option value="bancolombia">Bancolombia (Directo)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- NOTA / CONCEPTO -->
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Nota o descripción</label>
+          <input id="txNote" type="text" placeholder="Ej. Almuerzo, Uber, Compra Amazon, Aporte..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500" />
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-sm font-bold text-white shadow-lg shadow-blue-600/30 active:scale-[0.99] transition">
+          Guardar Movimiento
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL CONCILIACIÓN MANUAL DE SALDOS
+       ========================================== -->
+  <div id="reconcileModalBackdrop" class="fixed inset-0 bg-black/75 ios-blur z-50 hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-[#111827] border border-slate-700 rounded-3xl p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-white">Conciliar Saldos Reales</h3>
+          <p class="text-[11px] text-slate-400">Ajusta los saldos exactos que tienes hoy en cada entidad.</p>
+        </div>
+        <button onclick="App.closeReconcileModal()" class="p-1.5 rounded-full bg-slate-800 text-slate-400">✕</button>
+      </div>
+
+      <form onsubmit="App.saveReconciliation(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-yellow-400 font-semibold block mb-1">Bancolombia ($)</label>
+            <input id="recBancolombia" type="number" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
+          </div>
+          <div>
+            <label class="text-orange-400 font-semibold block mb-1">RappiPay ($)</label>
+            <input id="recRappi" type="number" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
+          </div>
+          <div>
+            <label class="text-rose-400 font-semibold block mb-1">Deuda Actual TC ($)</label>
+            <input id="recTcDebt" type="number" min="0" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
+          </div>
+          <div>
+            <label class="text-purple-300 font-semibold block mb-1">Nu · Mi Dinero ($)</label>
+            <input id="recNuOwn" type="number" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
+          </div>
+          <div class="col-span-2">
+            <label class="text-pink-300 font-semibold block mb-1">Nu · Dinero de Mamá ($)</label>
+            <input id="recNuMom" type="number" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
+            <span class="text-[10px] text-slate-500">Si ella te debe a la cajita, puedes usar signo negativo (ej. -50000).</span>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs active:scale-95 transition">
+          Aplicar Conciliación
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       BARRA DE NAVEGACIÓN INFERIOR (iOS DOCK + FAB)
+       ========================================== -->
+  <nav class="fixed bottom-0 inset-x-0 bg-[#0b101d]/90 ios-blur border-t border-slate-800/80 z-30" style="padding-bottom: var(--safe-bottom);">
+    <div class="max-w-md mx-auto px-6 h-16 flex items-center justify-between relative">
+      
+      <button onclick="App.switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center gap-1 text-blue-400 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+        </svg>
+        <span class="text-[10px] font-semibold">Panel</span>
+      </button>
+
+      <button onclick="App.switchTab('history')" id="nav-history" class="flex flex-col items-center gap-1 text-slate-400 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="text-[10px] font-semibold">Bitácora</span>
+      </button>
+
+      <!-- BOTÓN FLOTANTE CENTRAL (REGISTRO < 5 SEG) -->
+      <div class="-mt-7">
+        <button onclick="App.openQuickModal('expense')" class="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-white shadow-xl shadow-blue-600/40 border-4 border-[#090d16] flex items-center justify-center active:scale-90 transition">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
+      </div>
+
+      <button onclick="App.switchTab('gemini')" id="nav-gemini" class="flex flex-col items-center gap-1 text-slate-400 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+        </svg>
+        <span class="text-[10px] font-semibold">Gemini AI</span>
+      </button>
+
+      <button onclick="App.switchTab('settings')" id="nav-settings" class="flex flex-col items-center gap-1 text-slate-400 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="text-[10px] font-semibold">Ajustes</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- TOAST DE NOTIFICACIÓN -->
+  <div id="toast" class="fixed top-12 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-slate-900/95 border border-slate-700 text-xs font-semibold text-white shadow-2xl opacity-0 pointer-events-none transition-opacity duration-200"></div>
+
+  <!-- ==========================================
+       LÓGICA MODULAR DE LA APLICACIÓN (JS)
+       ========================================== -->
+  <script>
+    const App = (() => {
+      const STORAGE_KEY = 'finanzas_control_mental_v1';
+      const API_KEY_STORAGE = 'GEMINI_API_KEY';
+      const MODEL_STORAGE = 'GEMINI_MODEL_PREF';
+
+      const MODEL_CHAIN = [
+        'gemini-3.8-flash',
+        'gemini-3.7-flash',
+        'gemini-3.6-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-3.1-flash-lite'
+      ];
+
+      const modelCooldowns = {};
+
+      const copFormatter = new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP',
+        maximumFractionDigits: 0
+      });
+
+      const defaultState = () => ({
+        balances: {
+          bancolombia: 0,
+          rappi: 0,
+          tcDebt: 0,
+          nuOwn: 280000, // Arranca exactamente en $280.000 COP según requerimiento
+          nuMom: 0,
+          houseNetFlow: 0
+        },
+        transactions: [
+          {
+            id: 'init-nu-own',
+            date: new Date().toISOString(),
+            mode: 'system',
+            title: 'Saldo Inicial Mi Ahorro Nu',
+            category: 'Base Inicial',
+            amount: 280000,
+            accountLabel: 'Nu (Mío)',
+            note: 'Arranque base configurado ($280.000 COP)',
+            deltas: { bancolombia: 0, rappi: 0, tcDebt: 0, nuOwn: 0, nuMom: 0, houseNetFlow: 0 },
+            locked: true
+          }
+        ],
+        logs: [],
+        chatHistory: []
+      });
+
+      let state = loadState();
+      let currentModalMode = 'expense';
+      let currentHistoryFilter = 'all';
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return defaultState();
+          const parsed = JSON.parse(raw);
+          return {
+            ...defaultState(),
+            ...parsed,
+            balances: { ...defaultState().balances, ...(parsed.balances || {}) }
+          };
+        } catch (e) {
+          console.error('Error leyendo LocalStorage:', e);
+          return defaultState();
+        }
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        renderAll();
+      }
+
+      function formatCOP(val) {
+        return copFormatter.format(Math.round(Number(val) || 0));
+      }
+
+      function showToast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.remove('opacity-0');
+        el.classList.add('opacity-100');
+        setTimeout(() => {
+          el.classList.remove('opacity-100');
+          el.classList.add('opacity-0');
+        }, 2400);
+      }
+
+      // ==========================================
+      // CÁLCULOS FINANCIEROS CLAVE
+      // ==========================================
+      function computeMetrics() {
+        const b = state.balances;
+        // Patrimonio Neto Real = (Bancolombia + Nu Propio + Rappi) - Deuda TC (Excluye 100% dinero de mamá)
+        const netWorth = (b.bancolombia + b.nuOwn + b.rappi) - b.tcDebt;
+        // Déficit de respaldo en Rappi frente a la TC
+        const uncoveredTcDebt = Math.max(0, b.tcDebt - b.rappi);
+        // Disponible Operativo Libre Hoy (Bancolombia descontando cualquier deuda TC aún sin respaldar en Rappi)
+        const freeOperationalCash = b.bancolombia - uncoveredTcDebt;
+        // Total físico en la Cajita Nu
+        const nuTotal = b.nuOwn + b.nuMom;
+
+        return {
+          netWorth,
+          uncoveredTcDebt,
+          freeOperationalCash,
+          nuTotal,
+          tcSurplus: b.rappi - b.tcDebt
+        };
+      }
+
+      // ==========================================
+      // RENDERIZADO DEL DASHBOARD E HISTORIAL
+      // ==========================================
+      function renderAll() {
+        const b = state.balances;
+        const m = computeMetrics();
+
+        // 1. Hero Patrimonio Neto
+        const netWorthEl = document.getElementById('netWorthDisplay');
+        netWorthEl.textContent = formatCOP(m.netWorth);
+        netWorthEl.className = `text-3xl font-extrabold font-mono tracking-tight mt-2 ${m.netWorth >= 0 ? 'text-white' : 'text-rose-400'}`;
+
+        const freeCashEl = document.getElementById('freeCashDisplay');
+        freeCashEl.textContent = formatCOP(m.freeOperationalCash);
+        freeCashEl.className = `text-sm font-bold font-mono ${m.freeOperationalCash >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+        document.getElementById('ownSavingsDisplay').textContent = formatCOP(b.nuOwn);
+
+        // 2. Termómetro TC vs Rappi
+        document.getElementById('thermDebtVal').textContent = formatCOP(b.tcDebt);
+        document.getElementById('thermRappiVal').textContent = formatCOP(b.rappi);
+
+        const thermCard = document.getElementById('tcThermometerCard');
+        const statusIcon = document.getElementById('tcStatusIcon');
+        const statusText = document.getElementById('tcStatusText');
+        const coverageBadge = document.getElementById('tcCoverageBadge');
+        const thermBar = document.getElementById('thermBar');
+        const alertBanner = document.getElementById('tcAlertBanner');
+
+        if (b.tcDebt <= 0) {
+          thermCard.classList.remove('alert-deficit', 'border-rose-500');
+          thermCard.classList.add('border-ios-border');
+          statusIcon.className = 'w-8 h-8 rounded-xl flex items-center justify-center bg-emerald-500/15 text-emerald-400';
+          statusText.textContent = b.rappi > 0
+            ? `Cero deuda · Superávit de ${formatCOP(b.rappi)} en Rappi`
+            : 'Tarjeta en $0 · Sin deuda activa';
+          statusText.className = 'text-[11px] text-emerald-400 font-medium';
+          coverageBadge.textContent = '100% OK';
+          coverageBadge.className = 'text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+          thermBar.style.width = '100%';
+          thermBar.className = 'h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500';
+          alertBanner.classList.add('hidden');
+        } else if (b.rappi >= b.tcDebt) {
+          const pct = Math.min(999, Math.round((b.rappi / b.tcDebt) * 100));
+          thermCard.classList.remove('alert-deficit', 'border-rose-500');
+          thermCard.classList.add('border-ios-border');
+          statusIcon.className = 'w-8 h-8 rounded-xl flex items-center justify-center bg-emerald-500/15 text-emerald-400';
+          statusText.textContent = `Deuda 100% cubierta (+${formatCOP(b.rappi - b.tcDebt)} extra)`;
+          statusText.className = 'text-[11px] text-emerald-400 font-medium';
+          coverageBadge.textContent = `${pct}%`;
+          coverageBadge.className = 'text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+          thermBar.style.width = '100%';
+          thermBar.className = 'h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500';
+          alertBanner.classList.add('hidden');
+        } else {
+          // ALERTA ROJA: La deuda de TC supera el respaldo en Rappi
+          const pct = Math.max(4, Math.round((b.rappi / b.tcDebt) * 100));
+          const deficit = b.tcDebt - b.rappi;
+          thermCard.classList.add('alert-deficit', 'border-rose-500');
+          thermCard.classList.remove('border-ios-border');
+          statusIcon.className = 'w-8 h-8 rounded-xl flex items-center justify-center bg-rose-500/20 text-rose-400';
+          statusText.textContent = `¡Descuadre! Faltan ${formatCOP(deficit)} en Rappi`;
+          statusText.className = 'text-[11px] text-rose-400 font-bold';
+          coverageBadge.textContent = `${pct}%`;
+          coverageBadge.className = 'text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40';
+          thermBar.style.width = `${pct}%`;
+          thermBar.className = 'h-full rounded-full bg-gradient-to-r from-rose-600 to-orange-500 transition-all duration-500';
+          document.getElementById('tcDeficitAmount').textContent = formatCOP(deficit);
+          alertBanner.classList.remove('hidden');
+        }
+
+        // 3. Tarjetas de Cuentas
+        document.getElementById('balBancolombia').textContent = formatCOP(b.bancolombia);
+        document.getElementById('balRappi').textContent = formatCOP(b.rappi);
+        document.getElementById('balTcDebt').textContent = `- ${formatCOP(b.tcDebt)}`;
+
+        // 4. Cajita Nu (Mío vs Mamá)
+        document.getElementById('balNuTotal').textContent = formatCOP(m.nuTotal);
+        document.getElementById('balNuOwn').textContent = formatCOP(b.nuOwn);
+        document.getElementById('balNuMom').textContent = formatCOP(b.nuMom);
+
+        const momLabel = document.getElementById('nuMomStatusLabel');
+        if (b.nuMom > 0) {
+          momLabel.textContent = 'Saldo a favor de Mamá';
+          momLabel.className = 'text-[10px] text-pink-300 block mt-0.5';
+        } else if (b.nuMom < 0) {
+          momLabel.textContent = `Mamá debe reponer ${formatCOP(Math.abs(b.nuMom))}`;
+          momLabel.className = 'text-[10px] text-amber-300 font-semibold block mt-0.5';
+        } else {
+          momLabel.textContent = 'En $0 (Sin saldo de Mamá)';
+          momLabel.className = 'text-[10px] text-slate-400 block mt-0.5';
+        }
+
+        const posOwn = Math.max(0, b.nuOwn);
+        const posMom = Math.max(0, b.nuMom);
+        const sumPos = posOwn + posMom;
+        const ownPct = sumPos > 0 ? Math.round((posOwn / sumPos) * 100) : 100;
+        const momPct = 100 - ownPct;
+        document.getElementById('nuOwnBar').style.width = `${ownPct}%`;
+        document.getElementById('nuMomBar').style.width = `${momPct}%`;
+
+        // 5. Fondo Casa
+        const houseEl = document.getElementById('balHouseFlow');
+        houseEl.textContent = formatCOP(b.houseNetFlow);
+
+        // 6. Listas de transacciones y bitácora
+        renderTransactionLists();
+        renderSavedLogs();
+        updateApiKeyIndicators();
+      }
+
+      function renderTransactionLists() {
+        const recentContainer = document.getElementById('recentTransactionsList');
+        const fullContainer = document.getElementById('fullTransactionsList');
+
+        const txs = [...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Últimos 5 en Dashboard
+        const recent = txs.slice(0, 5);
+        recentContainer.innerHTML = recent.length
+          ? recent.map(tx => buildTxHTML(tx, false)).join('')
+          : `<div class="text-xs text-slate-500 text-center py-6 bg-ios-card rounded-2xl border border-ios-border">Aún no hay movimientos registrados.</div>`;
+
+        // Lista filtrada en Historial
+        const filtered = txs.filter(tx => {
+          if (currentHistoryFilter === 'all') return true;
+          if (currentHistoryFilter === 'tc') return tx.mode === 'tc_pay' || (tx.deltas && tx.deltas.tcDebt !== 0);
+          if (currentHistoryFilter === 'mom_nu') return tx.mode === 'mom_nu' || (tx.deltas && tx.deltas.nuMom !== 0);
+          if (currentHistoryFilter === 'house') return tx.deltas && tx.deltas.houseNetFlow !== 0;
+          return true;
+        });
+
+        fullContainer.innerHTML = filtered.length
+          ? filtered.map(tx => buildTxHTML(tx, true)).join('')
+          : `<div class="text-xs text-slate-500 text-center py-8 bg-ios-card rounded-2xl border border-ios-border">No hay movimientos en este filtro.</div>`;
+      }
+
+      function buildTxHTML(tx, allowDelete) {
+        const d = new Date(tx.date);
+        const dateStr = d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' }) + ' · ' +
+                        d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+
+        let badgeColor = 'bg-slate-800 text-slate-300';
+        let amountPrefix = '';
+        let amountColor = 'text-white';
+
+        if (tx.mode === 'expense') {
+          badgeColor = 'bg-rose-500/15 text-rose-300';
+          amountPrefix = '- ';
+          amountColor = 'text-rose-400';
+        } else if (tx.mode === 'income') {
+          badgeColor = 'bg-emerald-500/15 text-emerald-300';
+          amountPrefix = '+ ';
+          amountColor = 'text-emerald-400';
+        } else if (tx.mode === 'transfer') {
+          badgeColor = 'bg-blue-500/15 text-blue-300';
+          amountPrefix = '⇄ ';
+          amountColor = 'text-blue-300';
+        } else if (tx.mode === 'mom_nu') {
+          badgeColor = 'bg-pink-500/15 text-pink-300';
+          amountPrefix = tx.deltas.nuMom >= 0 ? '+ ' : '- ';
+          amountColor = 'text-pink-300';
+        } else if (tx.mode === 'tc_pay') {
+          badgeColor = 'bg-orange-500/15 text-orange-300';
+          amountPrefix = '✓ ';
+          amountColor = 'text-emerald-400';
+        }
+
+        const deleteBtn = (allowDelete && !tx.locked)
+          ? `<button onclick="App.deleteTransaction('${tx.id}')" title="Revertir y eliminar" class="ml-2 p-1.5 rounded-lg bg-slate-800/80 text-slate-400 hover:text-rose-400">
+               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+               </svg>
+             </button>`
+          : '';
+
+        return `
+          <div class="rounded-2xl bg-ios-card border border-ios-border p-3.5 flex items-center justify-between gap-2">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md ${badgeColor}">${escapeHtml(tx.accountLabel || tx.category)}</span>
+                <span class="text-[10px] text-slate-500">${dateStr}</span>
+              </div>
+              <p class="text-xs font-bold text-white truncate mt-1">${escapeHtml(tx.title)}</p>
+              ${tx.note ? `<p class="text-[11px] text-slate-400 truncate">${escapeHtml(tx.note)}</p>` : ''}
+            </div>
+            <div class="flex items-center shrink-0">
+              <span class="text-sm font-extrabold font-mono ${amountColor}">${amountPrefix}${formatCOP(tx.amount)}</span>
+              ${deleteBtn}
+            </div>
+          </div>
+        `;
+      }
+
+      // ==========================================
+      // REGISTRO RÁPIDO Y MOTOR TRANSACCIONAL
+      // ==========================================
+      function openQuickModal(mode = 'expense', presets = {}) {
+        const backdrop = document.getElementById('quickModalBackdrop');
+        const sheet = document.getElementById('quickModalSheet');
+        backdrop.classList.remove('hidden');
+        requestAnimationFrame(() => {
+          sheet.classList.remove('sheet-leave');
+          sheet.classList.add('sheet-enter');
+        });
+
+        document.getElementById('quickTxForm').reset();
+        updateAmountPreview(0);
+        setModalMode(mode);
+
+        if (presets.account) {
+          document.getElementById('expenseAccount').value = presets.account;
+          onExpenseAccountChange();
+        }
+        if (presets.from) document.getElementById('transferFrom').value = presets.from;
+        if (presets.to) document.getElementById('transferTo').value = presets.to;
+        if (presets.note) document.getElementById('txNote').value = presets.note;
+
+        setTimeout(() => document.getElementById('txAmount').focus(), 120);
+      }
+
+      function closeQuickModal() {
+        const backdrop = document.getElementById('quickModalBackdrop');
+        const sheet = document.getElementById('quickModalSheet');
+        sheet.classList.remove('sheet-enter');
+        sheet.classList.add('sheet-leave');
+        setTimeout(() => backdrop.classList.add('hidden'), 220);
+      }
+
+      function setModalMode(mode) {
+        currentModalMode = mode;
+        ['expense', 'transfer', 'mom_nu', 'tc_pay'].forEach(m => {
+          const btn = document.getElementById(`modeBtn-${m}`);
+          const fields = document.getElementById(`fields-${m}`);
+          if (m === mode) {
+            btn.className = 'py-2 rounded-xl bg-blue-600 text-white transition';
+            fields.classList.remove('hidden');
+          } else {
+            btn.className = 'py-2 rounded-xl text-slate-400 transition';
+            fields.classList.add('hidden');
+          }
+        });
+
+        // Actualizar datos contextuales dentro del modal
+        document.getElementById('modalMomBalance').textContent = formatCOP(state.balances.nuMom);
+        document.getElementById('modalTcDebt').textContent = formatCOP(state.balances.tcDebt);
+        document.getElementById('modalRappiAvail').textContent = formatCOP(state.balances.rappi);
+        onExpenseAccountChange();
+      }
+
+      function onExpenseAccountChange() {
+        const kind = document.getElementById('expenseKind').value;
+        const acc = document.getElementById('expenseAccount').value;
+        const autoBox = document.getElementById('tcAutoBackBox');
+        if (currentModalMode === 'expense' && kind === 'expense' && acc === 'tc') {
+          autoBox.classList.remove('hidden');
+        } else {
+          autoBox.classList.add('hidden');
+        }
+      }
+
+      function updateAmountPreview(val) {
+        document.getElementById('formattedPreviewAmount').textContent = formatCOP(val || 0);
+      }
+
+      function addQuickAmount(delta) {
+        const input = document.getElementById('txAmount');
+        const current = Number(input.value) || 0;
+        input.value = current + delta;
+        updateAmountPreview(input.value);
+      }
+
+      function setQuickAmount(val) {
+        const input = document.getElementById('txAmount');
+        input.value = val > 0 ? val : '';
+        updateAmountPreview(val);
+      }
+
+      function fillTcPayAmount(type) {
+        if (type === 'fullDebt') {
+          setQuickAmount(state.balances.tcDebt);
+        } else if (type === 'allRappi') {
+          setQuickAmount(Math.min(state.balances.rappi, state.balances.tcDebt || state.balances.rappi));
+        }
+      }
+
+      function accountFriendlyName(code) {
+        const map = {
+          bancolombia: 'Bancolombia',
+          rappi: 'RappiPay',
+          tc: 'Tarjeta Crédito',
+          nuOwn: 'Nu (Mío)',
+          nuMom: 'Nu (Mamá)',
+          fondoCasa: 'Fondo Casa (Excel)'
+        };
+        return map[code] || code;
+      }
+
+      function submitQuickForm(e) {
+        e.preventDefault();
+        const amount = Math.round(Number(document.getElementById('txAmount').value));
+        if (!amount || amount <= 0) {
+          showToast('Ingresa un monto válido mayor a 0');
+          return;
+        }
+
+        const note = document.getElementById('txNote').value.trim();
+        const deltas = { bancolombia: 0, rappi: 0, tcDebt: 0, nuOwn: 0, nuMom: 0, houseNetFlow: 0 };
+        let txMode = currentModalMode;
+        let title = '';
+        let category = '';
+        let accountLabel = '';
+
+        if (currentModalMode === 'expense') {
+          const kind = document.getElementById('expenseKind').value;
+          const acc = document.getElementById('expenseAccount').value;
+          category = document.getElementById('expenseCategory').value;
+
+          if (kind === 'expense') {
+            txMode = 'expense';
+            if (acc === 'tc') {
+              const autoBack = document.getElementById('tcAutoBackCheck').checked;
+              deltas.tcDebt += amount;
+              if (autoBack) {
+                deltas.bancolombia -= amount;
+                deltas.rappi += amount;
+                accountLabel = 'TC (+Respaldo Rappi)';
+                title = `${category} (Compra TC respaldada)`;
+              } else {
+                accountLabel = 'Tarjeta Crédito';
+                title = `${category} (Compra TC sin respaldar)`;
+              }
+            } else {
+              deltas[acc] -= amount;
+              accountLabel = accountFriendlyName(acc);
+              title = category;
+            }
+          } else {
+            // Ingreso
+            txMode = 'income';
+            if (acc === 'tc') {
+              deltas.tcDebt = Math.max(-state.balances.tcDebt, -amount);
+              accountLabel = 'Reverso TC';
+              title = `Abono / Reembolso a TC`;
+            } else {
+              deltas[acc] += amount;
+              accountLabel = accountFriendlyName(acc);
+              title = category === 'Nómina / Ingreso' ? 'Ingreso / Nómina' : `Ingreso (${category})`;
+            }
+          }
+        } else if (currentModalMode === 'transfer') {
+          const from = document.getElementById('transferFrom').value;
+          const to = document.getElementById('transferTo').value;
+          if (from === to) {
+            showToast('Elige cuentas de origen y destino diferentes');
+            return;
+          }
+
+          if (from === 'fondoCasa') deltas.houseNetFlow -= amount;
+          else deltas[from] -= amount;
+
+          if (to === 'fondoCasa') deltas.houseNetFlow += amount;
+          else deltas[to] += amount;
+
+          category = 'Transferencia';
+          accountLabel = `${accountFriendlyName(from)} → ${accountFriendlyName(to)}`;
+          title = to === 'fondoCasa'
+            ? 'Aporte enviado a Fondo Casa'
+            : from === 'fondoCasa'
+              ? 'Sobrante recibido de Fondo Casa'
+              : `Transferencia a ${accountFriendlyName(to)}`;
+
+        } else if (currentModalMode === 'mom_nu') {
+          const action = document.querySelector('input[name="momAction"]:checked').value;
+          category = 'Fondos Mamá (Nu)';
+          accountLabel = 'Nu · Subcuenta Mamá';
+          if (action === 'deposit') {
+            deltas.nuMom += amount;
+            title = 'Ingreso / Abono de Mamá en Nu';
+          } else {
+            deltas.nuMom -= amount;
+            title = 'Retiro / Gasto de Mamá desde Nu';
+          }
+
+        } else if (currentModalMode === 'tc_pay') {
+          const source = document.getElementById('tcPaySource').value;
+          deltas[source] -= amount;
+          deltas.tcDebt -= amount;
+          category = 'Pago Tarjeta Crédito';
+          accountLabel = `${accountFriendlyName(source)} → TC`;
+          title = `Pago a Tarjeta de Crédito desde ${accountFriendlyName(source)}`;
+        }
+
+        // Aplicar deltas al estado
+        Object.keys(deltas).forEach(k => {
+          state.balances[k] = Math.round((state.balances[k] || 0) + deltas[k]);
+        });
+
+        state.transactions.push({
+          id: 'tx-' + Date.now(),
+          date: new Date().toISOString(),
+          mode: txMode,
+          title,
+          category,
+          amount,
+          accountLabel,
+          note,
+          deltas
+        });
+
+        saveState();
+        closeQuickModal();
+        showToast('Movimiento registrado');
+      }
+
+      // Acciones en 1 toque para cubrir déficit Rappi
+      function fundMissingRappi() {
+        const deficit = state.balances.tcDebt - state.balances.rappi;
+        if (deficit <= 0) {
+          showToast('Tu TC ya está 100% respaldada en Rappi');
+          return;
+        }
+        state.balances.bancolombia -= deficit;
+        state.balances.rappi += deficit;
+        state.transactions.push({
+          id: 'tx-' + Date.now(),
+          date: new Date().toISOString(),
+          mode: 'transfer',
+          title: 'Cobertura de respaldo TC a Rappi',
+          category: 'Respaldo TC',
+          amount: deficit,
+          accountLabel: 'Bancolombia → RappiPay',
+          note: 'Ajuste automático para igualar respaldo de deuda TC',
+          deltas: { bancolombia: -deficit, rappi: deficit, tcDebt: 0, nuOwn: 0, nuMom: 0, houseNetFlow: 0 }
+        });
+        saveState();
+        showToast(`Se trasladaron ${formatCOP(deficit)} a Rappi`);
+      }
+
+      function deleteTransaction(id) {
+        const idx = state.transactions.findIndex(t => t.id === id);
+        if (idx === -1) return;
+        const tx = state.transactions[idx];
+        if (tx.locked) return;
+
+        // Revertir deltas exactamente
+        if (tx.deltas) {
+          Object.keys(tx.deltas).forEach(k => {
+            state.balances[k] = Math.round((state.balances[k] || 0) - tx.deltas[k]);
+          });
+        }
+        state.transactions.splice(idx, 1);
+        saveState();
+        showToast('Movimiento revertido y eliminado');
+      }
+
+      // ==========================================
+      // CONCILIACIÓN DE SALDOS MANUAL
+      // ==========================================
+      function openReconcileModal() {
+        const b = state.balances;
+        document.getElementById('recBancolombia').value = b.bancolombia;
+        document.getElementById('recRappi').value = b.rappi;
+        document.getElementById('recTcDebt').value = b.tcDebt;
+        document.getElementById('recNuOwn').value = b.nuOwn;
+        document.getElementById('recNuMom').value = b.nuMom;
+        document.getElementById('reconcileModalBackdrop').classList.remove('hidden');
+      }
+
+      function closeReconcileModal() {
+        document.getElementById('reconcileModalBackdrop').classList.add('hidden');
+      }
+
+      function saveReconciliation(e) {
+        e.preventDefault();
+        const newB = {
+          bancolombia: Math.round(Number(document.getElementById('recBancolombia').value) || 0),
+          rappi: Math.round(Number(document.getElementById('recRappi').value) || 0),
+          tcDebt: Math.max(0, Math.round(Number(document.getElementById('recTcDebt').value) || 0)),
+          nuOwn: Math.round(Number(document.getElementById('recNuOwn').value) || 0),
+          nuMom: Math.round(Number(document.getElementById('recNuMom').value) || 0)
+        };
+
+        const deltas = {
+          bancolombia: newB.bancolombia - state.balances.bancolombia,
+          rappi: newB.rappi - state.balances.rappi,
+          tcDebt: newB.tcDebt - state.balances.tcDebt,
+          nuOwn: newB.nuOwn - state.balances.nuOwn,
+          nuMom: newB.nuMom - state.balances.nuMom,
+          houseNetFlow: 0
+        };
+
+        state.balances = { ...state.balances, ...newB };
+        state.transactions.push({
+          id: 'rec-' + Date.now(),
+          date: new Date().toISOString(),
+          mode: 'transfer',
+          title: 'Conciliación Manual de Saldos',
+          category: 'Conciliación',
+          amount: Math.abs(deltas.bancolombia) + Math.abs(deltas.nuOwn) + Math.abs(deltas.rappi),
+          accountLabel: 'Ajuste de Control',
+          note: `Saldos cuadrados manualmente`,
+          deltas
+        });
+
+        saveState();
+        closeReconcileModal();
+        showToast('Saldos conciliados correctamente');
+      }
+
+      // ==========================================
+      // NAVEGACIÓN Y FILTROS
+      // ==========================================
+      function switchTab(tab) {
+        ['dashboard', 'history', 'gemini', 'settings'].forEach(t => {
+          document.getElementById(`view-${t}`).classList.toggle('hidden', t !== tab);
+          const navBtn = document.getElementById(`nav-${t}`);
+          if (navBtn) {
+            navBtn.className = t === tab
+              ? 'flex flex-col items-center gap-1 text-blue-400 transition'
+              : 'flex flex-col items-center gap-1 text-slate-400 transition';
+          }
+        });
+        if (tab === 'gemini') renderChatMessages();
+      }
+
+      function switchHistorySubTab(sub) {
+        const isTx = sub === 'tx';
+        document.getElementById('historyTxContainer').classList.toggle('hidden', !isTx);
+        document.getElementById('historyNotesContainer').classList.toggle('hidden', isTx);
+        document.getElementById('subTabTxBtn').className = isTx
+          ? 'px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold transition'
+          : 'px-3 py-1.5 rounded-lg text-slate-400 font-semibold transition';
+        document.getElementById('subTabNotesBtn').className = !isTx
+          ? 'px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold transition'
+          : 'px-3 py-1.5 rounded-lg text-slate-400 font-semibold transition';
+      }
+
+      function filterHistory(filter) {
+        currentHistoryFilter = filter;
+        renderTransactionLists();
+      }
+
+      // ==========================================
+      // INTEGRACIÓN CON GOOGLE GEMINI API EN VIVO
+      // ==========================================
+      function getSavedModelPref() {
+        const saved = localStorage.getItem(MODEL_STORAGE);
+        if (!saved || (saved !== 'auto' && !MODEL_CHAIN.includes(saved))) {
+          localStorage.setItem(MODEL_STORAGE, 'auto');
+          return 'auto';
+        }
+        return saved;
+      }
+
+      function updateApiKeyIndicators() {
+        const key = localStorage.getItem(API_KEY_STORAGE) || '';
+        const model = getSavedModelPref();
+        const input = document.getElementById('settingsApiKeyInput');
+        const select = document.getElementById('settingsModelSelect');
+        const badge = document.getElementById('apiKeyStatusBadge');
+        const dot = document.getElementById('apiKeyDot');
+
+        if (input && document.activeElement !== input) input.value = key;
+        if (select) select.value = model;
+
+        if (key.trim().length > 10) {
+          badge.textContent = 'Configurada';
+          badge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold';
+          dot.classList.add('hidden');
+        } else {
+          badge.textContent = 'Sin API Key';
+          badge.className = 'text-[10px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-semibold';
+          dot.classList.remove('hidden');
+        }
+      }
+
+      function saveApiKey() {
+        const key = document.getElementById('settingsApiKeyInput').value.trim();
+        const selected = document.getElementById('settingsModelSelect').value;
+        const model = (selected === 'auto' || MODEL_CHAIN.includes(selected)) ? selected : 'auto';
+        localStorage.setItem(API_KEY_STORAGE, key);
+        localStorage.setItem(MODEL_STORAGE, model);
+        updateApiKeyIndicators();
+        showToast('Configuración de Gemini guardada');
+      }
+
+      function buildFinancialSystemContext() {
+        const b = state.balances;
+        const m = computeMetrics();
+        const last10 = [...state.transactions]
+          .sort((a, c) => new Date(c.date) - new Date(a.date))
+          .slice(0, 10)
+          .map((t, i) => `${i + 1}. [${t.date.slice(0, 10)}] ${t.title} | Cuenta: ${t.accountLabel} | Monto: ${formatCOP(t.amount)} | Nota: ${t.note || 'N/A'}`)
+          .join('\n');
+
+        return `Eres el Consultor Financiero Senior personal del usuario en Colombia (moneda COP). Responde siempre en español claro, directo, estructurado y accionable.
+
+CONTEXTO FINANCIERO EN TIEMPO REAL DEL USUARIO:
+1. PATRIMONIO NETO REAL (Excluyendo 100% dinero de su mamá): ${formatCOP(m.netWorth)}
+   - Liquidez Operativa Libre Hoy (Bancolombia menos cualquier déficit de TC sin cubrir): ${formatCOP(m.freeOperationalCash)}
+2. SALDOS POR CUENTA:
+   - Bancolombia (Cuenta Operativa / Nómina): ${formatCOP(b.bancolombia)}
+   - RappiPay (Fondo destinado EXCLUSIVAMENTE a respaldar la Tarjeta de Crédito): ${formatCOP(b.rappi)}
+   - Tarjeta de Crédito (TC - Pasivo / Deuda acumulada): -${formatCOP(b.tcDebt)}
+   - Estado Termómetro TC vs Rappi: ${b.rappi >= b.tcDebt ? `CUBIERTA (Superávit en Rappi de ${formatCOP(b.rappi - b.tcDebt)})` : `ALERTA DE DÉFICIT (Faltan ${formatCOP(b.tcDebt - b.rappi)} en Rappi para cubrir la TC)`}
+3. DESGLOSE DE CAJITA NU (Fondos Mixtos):
+   - Saldo Total físico en la Cajita Nu: ${formatCOP(m.nuTotal)}
+   - Subcuenta Mía (Ahorro propio del usuario): ${formatCOP(b.nuOwn)}
+   - Subcuenta de Mamá (Dinero de terceros en custodia): ${formatCOP(b.nuMom)}
+4. ENLACE FONDO CASA (Excel de gastos fijos del hogar):
+   - Flujo neto enviado al Fondo Casa: ${formatCOP(b.houseNetFlow)}
+5. ÚLTIMOS 10 MOVIMIENTOS REGISTRADOS:
+${last10 || 'Sin movimientos recientes.'}
+
+REGLAS DE ASESORÍA:
+- Nunca mezcles el dinero de la mamá en Nu con el patrimonio propio del usuario. Si el usuario pregunta por qué ve cierto total en Nu pero siente menos liquidez, explícale con cifras exactas cuánto pertenece a su mamá y cuánto está comprometido para la TC.
+- Si la deuda de la TC supera el saldo en Rappi, adviértele prioritariamente cuántos pesos debe pasar de Bancolombia a Rappi.`;
+      }
+
+      function renderChatMessages() {
+        const box = document.getElementById('geminiChatBox');
+        if (!state.chatHistory || state.chatHistory.length === 0) {
+          box.innerHTML = `
+            <div class="rounded-2xl bg-ios-card border border-ios-border p-4 text-xs text-slate-300 space-y-2">
+              <p class="font-bold text-white">👋 Tu Asesor Financiero Gemini está listo.</p>
+              <p class="text-slate-400">Cada mensaje adjunta automáticamente los saldos de Bancolombia, Rappi, Deuda TC, el desglose de tu Cajita Nu (tuyo vs. tu mamá) y tus últimos 10 movimientos.</p>
+            </div>
+          `;
+          return;
+        }
+
+        box.innerHTML = state.chatHistory.map((msg, idx) => {
+          if (msg.role === 'user') {
+            return `
+              <div class="flex justify-end">
+                <div class="max-w-[85%] rounded-2xl rounded-br-sm bg-blue-600 text-white px-3.5 py-2.5 text-xs">
+                  ${escapeHtml(msg.text)}
+                </div>
+              </div>
+            `;
+          } else {
+            const modelTag = (msg.model && msg.model !== MODEL_CHAIN[0])
+              ? `<span class="text-[10px] text-slate-500 font-mono">Respondido con ${escapeHtml(msg.model)}</span>`
+              : `<span></span>`;
+            return `
+              <div class="flex justify-start">
+                <div class="max-w-[92%] rounded-2xl rounded-bl-sm bg-ios-card border border-ios-border px-4 py-3 text-xs text-slate-200 space-y-2">
+                  <div class="prose-sm leading-relaxed space-y-1.5">${formatMarkdown(msg.text)}</div>
+                  <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
+                    ${modelTag}
+                    <button onclick="App.saveChatToLog(${idx})" class="text-[11px] text-indigo-300 hover:text-white font-semibold flex items-center gap-1 ml-auto">
+                      📌 Guardar en Bitácora
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        }).join('');
+        box.scrollTop = box.scrollHeight;
+      }
+
+      function isModelAvailable(model) {
+        const until = modelCooldowns[model];
+        if (!until) return true;
+        if (until === Infinity) return false;
+        if (Date.now() >= until) {
+          delete modelCooldowns[model];
+          return true;
+        }
+        return false;
+      }
+
+      function computeCooldownMs(errorObj) {
+        const details = Array.isArray(errorObj?.details) ? errorObj.details : [];
+        for (const item of details) {
+          if (item && item.retryDelay != null) {
+            if (typeof item.retryDelay === 'string') {
+              const m = item.retryDelay.match(/([\d.]+)/);
+              if (m) {
+                const secs = parseFloat(m[1]);
+                if (secs > 0) return Math.ceil(secs * 1000);
+              }
+            } else if (typeof item.retryDelay === 'number' && item.retryDelay > 0) {
+              return Math.ceil(item.retryDelay * 1000);
+            } else if (typeof item.retryDelay === 'object' && item.retryDelay.seconds != null) {
+              const secs = Number(item.retryDelay.seconds) || 0;
+              if (secs > 0) return Math.ceil(secs * 1000);
+            }
+          }
+        }
+
+        const msgText = `${errorObj?.message || ''} ${JSON.stringify(details)}`;
+        if (/per day|per_day/i.test(msgText)) {
+          return 60 * 60 * 1000;
+        }
+        return 60 * 1000;
+      }
+
+      function buildAllCooldownNotice() {
+        const now = Date.now();
+        const remainingList = MODEL_CHAIN
+          .map(m => modelCooldowns[m])
+          .filter(until => typeof until === 'number' && isFinite(until) && until > now)
+          .map(until => until - now);
+
+        if (remainingList.length === 0) {
+          return 'Se agotó el uso de todos los modelos por ahora. Podrás intentar de nuevo en 60 segundos.';
+        }
+
+        const minMs = Math.min(...remainingList);
+        const secs = Math.max(1, Math.ceil(minMs / 1000));
+        const waitLabel = secs >= 60
+          ? `${Math.ceil(secs / 60)} ${Math.ceil(secs / 60) === 1 ? 'minuto' : 'minutos'}`
+          : `${secs} ${secs === 1 ? 'segundo' : 'segundos'}`;
+
+        return `Se agotó el uso de todos los modelos por ahora. Podrás intentar de nuevo en ${waitLabel}.`;
+      }
+
+      async function callGemini(model, contents, systemInstruction) {
+        const apiKey = localStorage.getItem(API_KEY_STORAGE) || '';
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: {
+              parts: [{ text: systemInstruction }]
+            },
+            contents
+          })
+        });
+
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (_) {
+          data = {};
+        }
+
+        if (!res.ok) {
+          const err = new Error(data?.error?.message || `Error HTTP ${res.status} al conectar con Gemini.`);
+          err.status = res.status;
+          err.errorObj = data?.error || {};
+          throw err;
+        }
+
+        const parts = data?.candidates?.[0]?.content?.parts || [];
+        const text = parts
+          .filter(p => p && !p.thought && typeof p.text === 'string')
+          .map(p => p.text)
+          .join('')
+          .trim();
+
+        return text || 'Sin respuesta del modelo.';
+      }
+
+      async function sendGeminiMessage(e, customPrompt = null) {
+        if (e) e.preventDefault();
+        const input = document.getElementById('geminiInput');
+        const userText = customPrompt || input.value.trim();
+        if (!userText) return;
+
+        const apiKey = localStorage.getItem(API_KEY_STORAGE);
+        const modelPref = getSavedModelPref();
+
+        if (!apiKey) {
+          showToast('Configura tu GEMINI_API_KEY primero en Ajustes');
+          switchTab('settings');
+          document.getElementById('settingsApiKeyInput').focus();
+          return;
+        }
+
+        if (!customPrompt) input.value = '';
+        state.chatHistory.push({ role: 'user', text: userText });
+        renderChatMessages();
+
+        const btn = document.getElementById('geminiSendBtn');
+        btn.disabled = true;
+        btn.classList.add('opacity-50');
+
+        const box = document.getElementById('geminiChatBox');
+        const loadingId = 'loading-' + Date.now();
+        box.insertAdjacentHTML('beforeend', `
+          <div id="${loadingId}" class="flex justify-start">
+            <div class="rounded-2xl bg-ios-card border border-ios-border px-4 py-3 text-xs text-slate-400 animate-pulse">
+              Analizando tus cuentas y últimos movimientos...
+            </div>
+          </div>
+        `);
+        box.scrollTop = box.scrollHeight;
+
+        const contents = state.chatHistory.slice(-8).map(m => ({
+          role: m.role === 'user' ? 'user' : 'model',
+          parts: [{ text: m.text }]
+        }));
+        const systemInstruction = buildFinancialSystemContext();
+
+        try {
+          if (modelPref !== 'auto') {
+            try {
+              const reply = await callGemini(modelPref, contents, systemInstruction);
+              document.getElementById(loadingId)?.remove();
+              state.chatHistory.push({ role: 'model', text: reply, model: modelPref });
+            } catch (err) {
+              document.getElementById(loadingId)?.remove();
+              if (err.status) {
+                state.chatHistory.push({ role: 'model', text: `⚠️ **Error de API (${modelPref}):** ${err.message}` });
+              } else {
+                state.chatHistory.push({ role: 'model', text: `⚠️ **Error de red:** No se pudo conectar con Google Gemini (${err.message}).` });
+              }
+            }
+            saveState();
+            renderChatMessages();
+            return;
+          }
+
+          // Modo Automático con cadena de respaldo (MODEL_CHAIN)
+          const candidates = MODEL_CHAIN.filter(m => isModelAvailable(m));
+          if (candidates.length === 0) {
+            document.getElementById(loadingId)?.remove();
+            state.chatHistory.push({ role: 'model', text: buildAllCooldownNotice() });
+            saveState();
+            renderChatMessages();
+            return;
+          }
+
+          let answered = false;
+          let fatalErrorMsg = null;
+
+          for (let i = 0; i < candidates.length; i++) {
+            const currentModel = candidates[i];
+            const nextModel = candidates[i + 1] || null;
+
+            try {
+              const reply = await callGemini(currentModel, contents, systemInstruction);
+              document.getElementById(loadingId)?.remove();
+              state.chatHistory.push({ role: 'model', text: reply, model: currentModel });
+              answered = true;
+              break;
+            } catch (err) {
+              const status = err.status;
+              const apiStatus = err.errorObj?.status || '';
+              const msg = err.message || '';
+
+              const isNotFoundOrRetired =
+                status === 404 ||
+                apiStatus === 'NOT_FOUND' ||
+                /not found|does not exist|no existe|retired|retirado|deprecated|is not supported/i.test(msg);
+
+              const isQuotaOrOverload =
+                status === 429 ||
+                status === 503 ||
+                status === 529 ||
+                apiStatus === 'RESOURCE_EXHAUSTED' ||
+                apiStatus === 'UNAVAILABLE' ||
+                /resource_exhausted|quota|rate limit|overloaded|saturad|too many requests|unavailable/i.test(msg);
+
+              if (isNotFoundOrRetired) {
+                modelCooldowns[currentModel] = Infinity;
+                if (nextModel) {
+                  showToast(`${currentModel} no disponible. Cambiando a ${nextModel}...`);
+                }
+                continue;
+              }
+
+              if (isQuotaOrOverload) {
+                const cooldownMs = computeCooldownMs(err.errorObj);
+                modelCooldowns[currentModel] = Date.now() + cooldownMs;
+                if (nextModel) {
+                  showToast(`Sin cupo en ${currentModel}. Cambiando a ${nextModel}...`);
+                }
+                continue;
+              }
+
+              fatalErrorMsg = status
+                ? `⚠️ **Error de API:** ${msg}`
+                : `⚠️ **Error de red:** No se pudo conectar con Google Gemini (${msg}).`;
+              break;
+            }
+          }
+
+          document.getElementById(loadingId)?.remove();
+
+          if (!answered) {
+            if (fatalErrorMsg) {
+              state.chatHistory.push({ role: 'model', text: fatalErrorMsg });
+            } else {
+              state.chatHistory.push({ role: 'model', text: buildAllCooldownNotice() });
+            }
+          }
+
+          saveState();
+          renderChatMessages();
+        } finally {
+          btn.disabled = false;
+          btn.classList.remove('opacity-50');
+        }
+      }
+
+      function askPreset(type) {
+        const prompts = {
+          weekend: '¿Cuánto dinero real tengo libre para gastar este fin de semana en Bancolombia sin tocar mi ahorro propio de Nu ni descompletar el respaldo de la Tarjeta de Crédito en Rappi?',
+          nu_audit: 'Explícame al detalle cómo está compuesta hoy mi Cajita de Nu entre mi dinero propio y el dinero de mi mamá, y por qué el saldo total de la app de Nu difiere de mi liquidez real.',
+          tc_audit: 'Audita mi deuda actual de Tarjeta de Crédito frente al dinero reservado en Rappi y mis últimos movimientos. ¿Debo mover dinero hoy mismo para respaldar o saldar la tarjeta?',
+          biweekly_log: 'Genera una Bitácora Quincenal ejecutiva y clara de mis finanzas: resume mis saldos actuales, el estado de la TC vs Rappi, el desglose de Nu (mío vs mamá), el flujo con Fondo Casa y los movimientos más relevantes para guardarla en mis notas.'
+        };
+        sendGeminiMessage(null, prompts[type]);
+      }
+
+      function clearChat() {
+        state.chatHistory = [];
+        saveState();
+        renderChatMessages();
+      }
+
+      // ==========================================
+      // BITÁCORA Y DOCUMENTACIÓN QUINCENAL
+      // ==========================================
+      function saveChatToLog(idx) {
+        const msg = state.chatHistory[idx];
+        if (!msg) return;
+        state.logs.unshift({
+          id: 'log-' + Date.now(),
+          date: new Date().toISOString(),
+          title: 'Auditoría / Resumen Gemini AI',
+          content: msg.text
+        });
+        saveState();
+        showToast('Guardado en tu Bitácora');
+      }
+
+      function createManualLog() {
+        const text = prompt('Escribe tu nota o resumen quincenal para la bitácora:');
+        if (!text || !text.trim()) return;
+        state.logs.unshift({
+          id: 'log-' + Date.now(),
+          date: new Date().toISOString(),
+          title: 'Nota Manual de Control',
+          content: text.trim()
+        });
+        saveState();
+        showToast('Nota agregada a la Bitácora');
+      }
+
+      function deleteLog(id) {
+        state.logs = state.logs.filter(l => l.id !== id);
+        saveState();
+        showToast('Nota eliminada');
+      }
+
+      function renderSavedLogs() {
+        const container = document.getElementById('savedLogsList');
+        if (!container) return;
+        if (!state.logs || state.logs.length === 0) {
+          container.innerHTML = `<div class="text-xs text-slate-500 text-center py-8 bg-ios-card rounded-2xl border border-ios-border">No tienes resúmenes guardados en la bitácora aún.</div>`;
+          return;
+        }
+        container.innerHTML = state.logs.map(log => {
+          const d = new Date(log.date).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
+          return `
+            <div class="rounded-2xl bg-ios-card border border-ios-border p-4 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-indigo-300">${escapeHtml(log.title)}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] text-slate-500">${d}</span>
+                  <button onclick="App.deleteLog('${log.id}')" class="text-slate-500 hover:text-rose-400 text-xs">✕</button>
+                </div>
+              </div>
+              <div class="text-xs text-slate-200 leading-relaxed space-y-1">${formatMarkdown(log.content)}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // ==========================================
+      // BACKUP Y UTILIDADES
+      // ==========================================
+      function exportBackup() {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `finanzas-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Backup JSON descargado');
+      }
+
+      function importBackup(event) {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          try {
+            const imported = JSON.parse(e.target.result);
+            if (!imported.balances || !Array.isArray(imported.transactions)) {
+              throw new Error('Estructura inválida');
+            }
+            state = imported;
+            saveState();
+            showToast('Respaldo restaurado con éxito');
+          } catch (err) {
+            showToast('Archivo JSON inválido');
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function resetFactory() {
+        if (!confirm('¿Estás seguro de reiniciar todos los saldos y movimientos? Tu ahorro propio en Nu volverá a $280.000 COP.')) return;
+        state = defaultState();
+        saveState();
+        showToast('Sistema reiniciado a valores iniciales');
+      }
+
+      function escapeHtml(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function formatMarkdown(text) {
+        const safe = escapeHtml(text);
+        return safe
+          .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-bold">$1</strong>')
+          .replace(/^\* (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
+          .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
+          .replace(/\n/g, '<br/>');
+      }
+
+      // Inicialización al cargar el DOM
+      window.addEventListener('DOMContentLoaded', () => {
+        renderAll();
+      });
+
+      return {
+        openQuickModal,
+        closeQuickModal,
+        setModalMode,
+        onExpenseAccountChange,
+        updateAmountPreview,
+        addQuickAmount,
+        setQuickAmount,
+        fillTcPayAmount,
+        submitQuickForm,
+        fundMissingRappi,
+        deleteTransaction,
+        openReconcileModal,
+        closeReconcileModal,
+        saveReconciliation,
+        switchTab,
+        switchHistorySubTab,
+        filterHistory,
+        saveApiKey,
+        sendGeminiMessage,
+        askPreset,
+        clearChat,
+        saveChatToLog,
+        createManualLog,
+        deleteLog,
+        exportBackup,
+        importBackup,
+        resetFactory
+      };
+    })();
+  </script>
+</body>
+</html>
